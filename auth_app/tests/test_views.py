@@ -63,3 +63,23 @@ class RegistrationViewTest(APITestCase):
         }
         response = self.client.post("/api/registration/", data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class LoginViewTest(APITestCase):
+    def test_login_success(self):
+        User.objects.create_user(username="testuser", password="1234", type="customer")
+        data = {
+            "username": "testuser",
+            "password": "1234",
+        }
+        response = self.client.post("/api/login/", data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_login_invalid_credentials(self):
+        User.objects.create_user(username="testuser", password="1234", type="customer")
+        data = {
+            "username": "testuser2",
+            "password": "1234",
+        }
+        response = self.client.post("/api/login/", data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
