@@ -1,6 +1,11 @@
 from django.test import TestCase
-from auth_app.api.serializers import RegistrationSerializer, LoginSerializer
+from auth_app.api.serializers import (
+    RegistrationSerializer,
+    LoginSerializer,
+    ProfileSerializer,
+)
 from auth_app.models import User
+
 
 class RegistrationSerializerTest(TestCase):
     def test_valid_data(self):
@@ -24,10 +29,13 @@ class RegistrationSerializerTest(TestCase):
         }
         serializer = RegistrationSerializer(data=data)
         self.assertFalse(serializer.is_valid())
-        
+
+
 class LoginSerializerTest(TestCase):
     def test_valid_credentials(self):
-        User.objects.create_user(username="testuser", password="123456", type="customer")
+        User.objects.create_user(
+            username="testuser", password="123456", type="customer"
+        )
         data = {
             "username": "testuser",
             "password": "123456",
@@ -43,3 +51,12 @@ class LoginSerializerTest(TestCase):
         }
         serializer = LoginSerializer(data=data)
         self.assertFalse(serializer.is_valid())
+
+
+class ProfileSerializerTest(TestCase):
+    def test_serialize_user(self):
+        user = User.objects.create_user(
+            username="testuser", password="123456", type="customer"
+        )
+        serializer = ProfileSerializer(user)
+        self.assertEqual(serializer.data["username"], "testuser")

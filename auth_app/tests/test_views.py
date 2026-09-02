@@ -83,3 +83,32 @@ class LoginViewTest(APITestCase):
         }
         response = self.client.post("/api/login/", data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class ProfileViewTest(APITestCase):
+    def test_profile_get_success(self):
+        testuser = User.objects.create_user(
+            username="testuser", password="1234", type="customer"
+        )
+        self.client.force_authenticate(user=testuser)
+        response = self.client.get(f"/api/profile/{testuser.id}/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_profile_patch_owner(self):
+        testuser = User.objects.create_user(
+            username="testuser", password="1234", type="customer"
+        )
+        self.client.force_authenticate(user=testuser)
+        response = self.client.patch(f"/api/profile/{testuser.id}/", {"location": "Berlin"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_profile_patch_not_owner(self):
+        owner = User.objects.create_user(
+            username="owner", password="1234", type="customer"
+        )
+        other_user = User.objects.create_user(
+            username="other", password="1234", type="customer"
+        )
+        self.client.force_authenticate(user=other_user)
+        response = self.client.patch(f"/api/profile/{owner.id}/", {"location": "Berlin"})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
