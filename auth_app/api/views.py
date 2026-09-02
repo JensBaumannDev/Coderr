@@ -1,8 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics, permissions
 from rest_framework.authtoken.models import Token
-from .serializers import RegistrationSerializer, LoginSerializer
+from .serializers import RegistrationSerializer, LoginSerializer, ProfileSerializer
+from .permissions import IsOwnerOrReadOnly
+from auth_app.models import User
 
 
 class RegistrationView(APIView):
@@ -35,4 +37,9 @@ class LoginView(APIView):
             }
             return Response(data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
+
+class ProfileView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
