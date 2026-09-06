@@ -112,3 +112,33 @@ class ProfileViewTest(APITestCase):
         self.client.force_authenticate(user=other_user)
         response = self.client.patch(f"/api/profile/{owner.id}/", {"location": "Berlin"})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class ProfileListViewTest(APITestCase):
+    def test_business_profiles_list(self):
+        business_user = User.objects.create_user(
+            username="bizuser", password="1234", type="business"
+        )
+        customer_user = User.objects.create_user(
+            username="customeruser", password="1234", type="customer"
+        )
+        self.client.force_authenticate(user=business_user)
+        response = self.client.get("/api/profiles/business/")
+        usernames = [entry["username"] for entry in response.data]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("bizuser", usernames)
+        self.assertNotIn("customeruser", usernames)
+
+    def test_customer_profiles_list(self):
+        business_user = User.objects.create_user(
+            username="bizuser2", password="1234", type="business"
+        )
+        customer_user = User.objects.create_user(
+            username="customeruser2", password="1234", type="customer"
+        )
+        self.client.force_authenticate(user=customer_user)
+        response = self.client.get("/api/profiles/customer/")
+        usernames = [entry["username"] for entry in response.data]
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("customeruser2", usernames)
+        self.assertNotIn("bizuser2", usernames)
