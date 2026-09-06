@@ -2,7 +2,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from rest_framework.authtoken.models import Token
-from .serializers import RegistrationSerializer, LoginSerializer, ProfileSerializer
+from .serializers import (
+    RegistrationSerializer,
+    LoginSerializer,
+    ProfileSerializer,
+    ProfileListSerializer,
+)
 from .permissions import IsOwnerOrReadOnly
 from auth_app.models import User
 
@@ -43,3 +48,15 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+
+
+class CustomerProfileListView(generics.ListAPIView):
+    queryset = User.objects.filter(type="customer")
+    serializer_class = ProfileListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class BusinessProfileListView(generics.ListAPIView):
+    queryset = User.objects.filter(type="business")
+    serializer_class = ProfileListSerializer
+    permission_classes = [permissions.IsAuthenticated]

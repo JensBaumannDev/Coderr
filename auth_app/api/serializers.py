@@ -59,3 +59,22 @@ class ProfileSerializer(serializers.ModelSerializer):
             "username": {"read_only": True},
             "type": {"read_only": True},
         }
+
+
+class ProfileListSerializer(serializers.ModelSerializer):
+    user = serializers.IntegerField(source="id", read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "user",
+            "username",
+            "first_name",
+            "last_name",
+            "file",
+            "location",
+            "tel",
+            "description",
+            "working_hours",
+            "type",
+        ]
