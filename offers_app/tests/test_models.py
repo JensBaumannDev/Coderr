@@ -13,6 +13,15 @@ class OfferModelTest(TestCase):
         )
         self.assertEqual(offer.title, "testtitle")
 
+    def test_offer_string_representation(self):
+        testuser = get_user_model().objects.create_user(
+            username="testuser", password="testpass123", type="business"
+        )
+        offer = Offer.objects.create(
+            user=testuser, title="testtitle", description="testdescription"
+        )
+        self.assertEqual(str(offer), "testtitle")
+
 
 class OfferDetailModelTest(TestCase):
     def test_create_offer_details(self):
@@ -32,3 +41,21 @@ class OfferDetailModelTest(TestCase):
             offer_type="basic",
         )
         self.assertEqual(detail.price, 100)
+
+    def test_offer_detail_string_representation(self):
+        testuser = get_user_model().objects.create_user(
+            username="testuser", password="testpass123", type="business"
+        )
+        testoffer = Offer.objects.create(
+            user=testuser, title="testtitle", description="testdescription"
+        )
+        detail = OfferDetail.objects.create(
+            offer=testoffer,
+            title="testtitle",
+            revisions=2,
+            delivery_time_in_days=5,
+            price=100,
+            features=["Logo Design", "Visitenkarte"],
+            offer_type="basic",
+        )
+        self.assertEqual(str(detail), "testtitle (basic)")

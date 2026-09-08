@@ -55,3 +55,25 @@ class OfferSerializer(serializers.ModelSerializer):
             "min_delivery_time",
             "user_details",
         ]
+
+
+class OfferCreateSerializer(serializers.ModelSerializer):
+    details = OfferDetailSerializer(many=True)
+
+    class Meta:
+        model = Offer
+        fields = ["id", "title", "image", "description", "details"]
+
+    def validate_details(self, value):
+        if len(value) != 3:
+            raise serializers.ValidationError("Ein Angebot benötigt genau 3 Details.")
+        return value
+
+    def create(self, validated_data):
+        details_data = validated_data.pop("details")
+        offer = Offer.objects.create(
+            user=self.context["request"].user, **validated_data
+        )
+        for detail in details_data:
+            OfferDetail.objects.create(offer=offer, **detail)
+        return offer
