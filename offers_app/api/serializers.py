@@ -65,7 +65,7 @@ class OfferCreateSerializer(serializers.ModelSerializer):
         fields = ["id", "title", "image", "description", "details"]
 
     def validate_details(self, value):
-        if len(value) != 3:
+        if not self.partial and len(value) != 3:
             raise serializers.ValidationError("Ein Angebot benötigt genau 3 Details.")
         return value
 
@@ -77,3 +77,15 @@ class OfferCreateSerializer(serializers.ModelSerializer):
         for detail in details_data:
             OfferDetail.objects.create(offer=offer, **detail)
         return offer
+
+    def update(self, instance, validated_data):
+        details_data = validated_data.pop("details", [])
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        instance.save()
+        for detail in details_data:
+            existing = instance.details.get(offer_type=detail["offer_type"])
+            for key, value in detail.items():
+                setattr(existing, key, value)
+            existing.save()
+        return instance
