@@ -1,61 +1,23 @@
 from django.test import TestCase
-from django.contrib.auth import get_user_model
-from offers_app.models import Offer, OfferDetail
+
+from .helpers import OfferTestMixin
 
 
-class OfferModelTest(TestCase):
+class OfferModelTest(OfferTestMixin, TestCase):
     def test_create_offer(self):
-        testuser = get_user_model().objects.create_user(
-            username="testuser", password="testpass123", type="business"
-        )
-        offer = Offer.objects.create(
-            user=testuser, title="testtitle", description="testdescription"
-        )
+        offer = self.create_offer(self.create_user())
         self.assertEqual(offer.title, "testtitle")
 
     def test_offer_string_representation(self):
-        testuser = get_user_model().objects.create_user(
-            username="testuser", password="testpass123", type="business"
-        )
-        offer = Offer.objects.create(
-            user=testuser, title="testtitle", description="testdescription"
-        )
+        offer = self.create_offer(self.create_user())
         self.assertEqual(str(offer), "testtitle")
 
 
-class OfferDetailModelTest(TestCase):
+class OfferDetailModelTest(OfferTestMixin, TestCase):
     def test_create_offer_details(self):
-        testuser = get_user_model().objects.create_user(
-            username="testuser", password="testpass123", type="business"
-        )
-        testoffer = Offer.objects.create(
-            user=testuser, title="testtitle", description="testdescription"
-        )
-        detail = OfferDetail.objects.create(
-            offer=testoffer,
-            title="testtitle",
-            revisions=2,
-            delivery_time_in_days=5,
-            price=100,
-            features=["Logo Design", "Visitenkarte"],
-            offer_type="basic",
-        )
+        detail = self.create_detail(self.create_offer(self.create_user()))
         self.assertEqual(detail.price, 100)
 
     def test_offer_detail_string_representation(self):
-        testuser = get_user_model().objects.create_user(
-            username="testuser", password="testpass123", type="business"
-        )
-        testoffer = Offer.objects.create(
-            user=testuser, title="testtitle", description="testdescription"
-        )
-        detail = OfferDetail.objects.create(
-            offer=testoffer,
-            title="testtitle",
-            revisions=2,
-            delivery_time_in_days=5,
-            price=100,
-            features=["Logo Design", "Visitenkarte"],
-            offer_type="basic",
-        )
+        detail = self.create_detail(self.create_offer(self.create_user()))
         self.assertEqual(str(detail), "testtitle (basic)")
