@@ -4,6 +4,7 @@ from offers_app.models import OfferDetail
 
 
 class Order(models.Model):
+    """Represents an order created from an offer package."""
     STATUS_CHOICES = [
         ("in_progress", "In Progress"),
         ("completed", "Completed"),
@@ -35,4 +36,5 @@ class Order(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):
+        """Returns the order title."""
         return f"Order #{self.id}: {self.title}"

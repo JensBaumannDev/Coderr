@@ -3,6 +3,7 @@ from auth_app.models import User
 
 
 class Offer(models.Model):
+    """Represents an offer created by a business user."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="offers")
     title = models.CharField(max_length=100)
     image = models.ImageField(upload_to="offer_images/", blank=True, null=True)
@@ -14,10 +15,12 @@ class Offer(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):
+        """Returns the offer title."""
         return self.title
 
 
 class OfferDetail(models.Model):
+    """Represents one package of an offer."""
     TYPE_CHOICES = [
         ("basic", "Basic"),
         ("standard", "Standard"),
@@ -32,4 +35,5 @@ class OfferDetail(models.Model):
     offer_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
 
     def __str__(self):
+        """Returns the package title and type."""
         return f"{self.title} ({self.offer_type})"

@@ -13,7 +13,10 @@ from auth_app.models import User
 
 
 class RegistrationView(APIView):
+    """Creates new user accounts and authentication tokens."""
+
     def post(self, request):
+        """Processes a user registration request."""
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -29,7 +32,10 @@ class RegistrationView(APIView):
 
 
 class LoginView(APIView):
+    """Authenticates users and returns authentication tokens."""
+
     def post(self, request):
+        """Processes a user login request."""
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data["user"]
@@ -45,18 +51,21 @@ class LoginView(APIView):
 
 
 class ProfileView(generics.RetrieveUpdateAPIView):
+    """Retrieves and updates a single user profile."""
     queryset = User.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
 
 class CustomerProfileListView(generics.ListAPIView):
+    """Lists all customer profiles."""
     queryset = User.objects.filter(type="customer")
     serializer_class = ProfileListSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
 class BusinessProfileListView(generics.ListAPIView):
+    """Lists all business profiles."""
     queryset = User.objects.filter(type="business")
     serializer_class = ProfileListSerializer
     permission_classes = [permissions.IsAuthenticated]

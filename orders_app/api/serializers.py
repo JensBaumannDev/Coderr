@@ -5,6 +5,7 @@ from ..models import Order
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    """Serializes an order."""
     class Meta:
         model = Order
         fields = [
@@ -24,9 +25,11 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class OrderCreateSerializer(serializers.Serializer):
+    """Creates an order from an offer package."""
     offer_detail_id = serializers.IntegerField(write_only=True)
 
     def create(self, validated_data):
+        """Creates an order with copied package data."""
         detail = validated_data["offer_detail_id"]
         order_data = self._order_data(detail)
         return Order.objects.create(
@@ -36,6 +39,7 @@ class OrderCreateSerializer(serializers.Serializer):
         )
 
     def _order_data(self, detail):
+        """Collects the package values for a new order."""
         fields = [
             "title",
             "revisions",
@@ -47,18 +51,22 @@ class OrderCreateSerializer(serializers.Serializer):
         return {field: getattr(detail, field) for field in fields}
 
     def validate_offer_detail_id(self, value):
+        """Returns the selected offer package or raises an error."""
         return get_object_or_404(OfferDetail, pk=value)
 
     def to_representation(self, instance):
+        """Returns the complete created order."""
         return OrderSerializer(instance).data
 
 
 class OrderStatusSerializer(serializers.ModelSerializer):
+    """Updates only the status of an order."""
     class Meta:
         model = Order
         fields = ["status"]
 
     def validate(self, attrs):
+        """Checks that only the status field is changed."""
         invalid_fields = set(self.initial_data) - {"status"}
         if invalid_fields:
             raise serializers.ValidationError(
@@ -67,4 +75,5 @@ class OrderStatusSerializer(serializers.ModelSerializer):
         return attrs
 
     def to_representation(self, instance):
+        """Returns the complete updated order."""
         return OrderSerializer(instance).data
