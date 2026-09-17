@@ -2,9 +2,14 @@ from django.db.models import Min, Q
 from rest_framework import generics, permissions
 
 from offers_app.models import Offer, OfferDetail
-from .serializers import OfferSerializer, OfferCreateSerializer, OfferDetailSerializer
+
 from .pagination import OfferPagination
 from .permissions import IsBusinessUser, IsOfferOwnerOrReadOnly
+from .serializers import (
+    OfferCreateSerializer,
+    OfferDetailSerializer,
+    OfferSerializer,
+)
 
 
 class OfferListView(generics.ListCreateAPIView):
@@ -62,7 +67,9 @@ class OfferListView(generics.ListCreateAPIView):
     def _filter_delivery_time(self, queryset, max_delivery_time):
         """Filters offers by their shortest delivery time."""
         if max_delivery_time:
-            return queryset.filter(shortest_delivery_time__lte=max_delivery_time)
+            return queryset.filter(
+                shortest_delivery_time__lte=max_delivery_time
+            )
         return queryset
 
     def _filter_search(self, queryset, search):

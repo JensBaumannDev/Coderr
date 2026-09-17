@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+
 from offers_app.models import Offer, OfferDetail
 from orders_app.models import Order
 

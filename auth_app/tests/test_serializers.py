@@ -1,4 +1,5 @@
 from django.test import TestCase
+
 from auth_app.api.serializers import (
     RegistrationSerializer,
     LoginSerializer,
@@ -44,7 +45,9 @@ class LoginSerializerTest(TestCase):
         self.assertTrue(serializer.is_valid())
 
     def test_invalid_credentials(self):
-        User.objects.create_user(username="testuser", password="1234", type="customer")
+        User.objects.create_user(
+            username="testuser", password="1234", type="customer"
+        )
         data = {
             "username": "123",
             "password": "1234",

@@ -54,7 +54,9 @@ class OfferListViewTest(OfferTestMixin, APITestCase):
         cheap_offer = self.create_listing_offer(user, "cheap", price=50)
         self.create_detail(cheap_offer, price=100, offer_type="standard")
         self.create_detail(cheap_offer, price=200, offer_type="premium")
-        expensive_offer = self.create_listing_offer(user, "expensive", price=100)
+        expensive_offer = self.create_listing_offer(
+            user, "expensive", price=100
+        )
         response = self.client.get("/api/offers/?min_price=75")
         self.assert_offer_results(response, expensive_offer)
 
@@ -91,7 +93,9 @@ class OfferListViewTest(OfferTestMixin, APITestCase):
     def test_offer_list_ordering_by_min_price(self):
         user = self.create_user()
         cheap_offer = self.create_listing_offer(user, "cheap", price=50)
-        expensive_offer = self.create_listing_offer(user, "expensive", price=100)
+        expensive_offer = self.create_listing_offer(
+            user, "expensive", price=100
+        )
         response = self.client.get("/api/offers/?ordering=min_price")
         self.assert_offer_results(response, cheap_offer, expensive_offer)
 
@@ -139,7 +143,9 @@ class OfferDetailViewTest(OfferTestMixin, APITestCase):
     def test_offer_patch_forbidden_for_non_owner(self):
         offer = self.create_package_offer(self.create_user("patchowner2"))
         self.client.force_authenticate(user=self.create_user("patchother2"))
-        response = self.client.patch(f"/api/offers/{offer.id}/", {"title": "Hacked"})
+        response = self.client.patch(
+            f"/api/offers/{offer.id}/", {"title": "Hacked"}
+        )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_offer_delete_owner_success(self):
@@ -157,7 +163,9 @@ class OfferDetailViewTest(OfferTestMixin, APITestCase):
 
     def test_offer_patch_unauthenticated(self):
         offer = self.create_package_offer(self.create_user("patchowner3"))
-        response = self.client.patch(f"/api/offers/{offer.id}/", {"title": "Hacked"})
+        response = self.client.patch(
+            f"/api/offers/{offer.id}/", {"title": "Hacked"}
+        )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_offer_delete_unauthenticated(self):
@@ -166,4 +174,7 @@ class OfferDetailViewTest(OfferTestMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def _patch_data(self):
-        return {"title": "Updated", "details": [{"offer_type": "basic", "price": 150}]}
+        return {
+            "title": "Updated",
+            "details": [{"offer_type": "basic", "price": 150}],
+        }
