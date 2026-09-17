@@ -7,6 +7,7 @@ from offers_app.api.serializers import (
     OfferDetailSerializer,
     OfferSerializer,
 )
+
 from .helpers import OfferTestMixin
 
 
@@ -21,7 +22,9 @@ class OfferSerializerTest(OfferTestMixin, TestCase):
     def test_offer_serializer_min_values(self):
         offer = self.create_offer(self.create_user())
         self.create_detail(offer, price=100, delivery_time=7)
-        self.create_detail(offer, price=50, delivery_time=3, offer_type="standard")
+        self.create_detail(
+            offer, price=50, delivery_time=3, offer_type="standard"
+        )
         serializer = OfferSerializer(offer)
         self.assertEqual(serializer.data["min_price"], "50.00")
         self.assertEqual(serializer.data["min_delivery_time"], 3)
@@ -34,6 +37,20 @@ class OfferCreateSerializerTest(OfferTestMixin, TestCase):
 
     def test_offer_with_two_details_invalid(self):
         serializer = OfferCreateSerializer(data=self.offer_data(2))
+        self.assertFalse(serializer.is_valid())
+
+    def test_offer_with_duplicate_package_types_invalid(self):
+        """Rejects an offer without all required package types."""
+        data = self.offer_data()
+        data["details"][2]["offer_type"] = "basic"
+        serializer = OfferCreateSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+
+    def test_offer_with_invalid_delivery_time_invalid(self):
+        """Rejects an offer with a non-positive delivery time."""
+        data = self.offer_data()
+        data["details"][0]["delivery_time_in_days"] = 0
+        serializer = OfferCreateSerializer(data=data)
         self.assertFalse(serializer.is_valid())
 
     def test_create_offer_with_details(self):

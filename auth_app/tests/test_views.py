@@ -1,5 +1,6 @@
-from rest_framework.test import APITestCase
 from rest_framework import status
+from rest_framework.test import APITestCase
+
 from auth_app.models import User
 
 
@@ -27,12 +28,7 @@ class RegistrationViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_registration_duplicate_username(self):
-        User.objects.create_user(
-            username="duplicate",
-            email="dup@coderr.com",
-            password="testpass123",
-            type="customer",
-        )
+        self._create_duplicate_user()
         data = {
             "username": "duplicate",
             "email": "dup2@coderr.com",
@@ -42,6 +38,15 @@ class RegistrationViewTest(APITestCase):
         }
         response = self.client.post("/api/registration/", data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def _create_duplicate_user(self):
+        """Creates an existing user for the duplicate username test."""
+        User.objects.create_user(
+            username="duplicate",
+            email="dup@coderr.com",
+            password="testpass123",
+            type="customer",
+        )
 
     def test_registration_missing_field(self):
         data = {
@@ -67,7 +72,9 @@ class RegistrationViewTest(APITestCase):
 
 class LoginViewTest(APITestCase):
     def test_login_success(self):
-        User.objects.create_user(username="testuser", password="1234", type="customer")
+        User.objects.create_user(
+            username="testuser", password="1234", type="customer"
+        )
         data = {
             "username": "testuser",
             "password": "1234",
@@ -76,7 +83,9 @@ class LoginViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_login_invalid_credentials(self):
-        User.objects.create_user(username="testuser", password="1234", type="customer")
+        User.objects.create_user(
+            username="testuser", password="1234", type="customer"
+        )
         data = {
             "username": "testuser2",
             "password": "1234",
@@ -99,7 +108,9 @@ class ProfileViewTest(APITestCase):
             username="testuser", password="1234", type="customer"
         )
         self.client.force_authenticate(user=testuser)
-        response = self.client.patch(f"/api/profile/{testuser.id}/", {"location": "Berlin"})
+        response = self.client.patch(
+            f"/api/profile/{testuser.id}/", {"location": "Berlin"}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_profile_patch_not_owner(self):
@@ -110,11 +121,20 @@ class ProfileViewTest(APITestCase):
             username="other", password="1234", type="customer"
         )
         self.client.force_authenticate(user=other_user)
-        response = self.client.patch(f"/api/profile/{owner.id}/", {"location": "Berlin"})
+        response = self.client.patch(
+            f"/api/profile/{owner.id}/", {"location": "Berlin"}
+        )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class ProfileListViewTest(APITestCase):
+    def assert_customer_profile_fields(self, response):
+        """Checks the documented customer profile response fields."""
+        self.assertEqual(
+            set(response.data[0]),
+            {"user", "username", "file", "uploaded_at", "type"},
+        )
+
     def test_business_profiles_list(self):
         business_user = User.objects.create_user(
             username="bizuser", password="1234", type="business"
@@ -142,3 +162,4 @@ class ProfileListViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("customeruser2", usernames)
         self.assertNotIn("bizuser2", usernames)
+        self.assert_customer_profile_fields(response)

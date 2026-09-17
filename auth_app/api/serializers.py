@@ -1,6 +1,7 @@
-from rest_framework import serializers
-from auth_app.models import User
 from django.contrib.auth import authenticate
+from rest_framework import serializers
+
+from auth_app.models import User
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -32,7 +33,9 @@ class LoginSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         """Authenticates the user with the submitted credentials."""
-        user = authenticate(username=attrs["username"], password=attrs["password"])
+        user = authenticate(
+            username=attrs["username"], password=attrs["password"]
+        )
 
         if user is None:
             raise serializers.ValidationError("Username or password not found")
@@ -43,7 +46,9 @@ class LoginSerializer(serializers.Serializer):
 class ProfileSerializer(serializers.ModelSerializer):
     """Serializes a complete user profile."""
     user = serializers.IntegerField(source="id", read_only=True)
-    created_at = serializers.DateTimeField(source="date_joined", read_only=True)
+    created_at = serializers.DateTimeField(
+        source="date_joined", read_only=True
+    )
 
     class Meta:
         model = User
@@ -85,3 +90,15 @@ class ProfileListSerializer(serializers.ModelSerializer):
             "working_hours",
             "type",
         ]
+
+
+class CustomerProfileListSerializer(serializers.ModelSerializer):
+    """Serializes customer profiles for profile lists."""
+    user = serializers.IntegerField(source="id", read_only=True)
+    uploaded_at = serializers.DateTimeField(
+        source="date_joined", read_only=True
+    )
+
+    class Meta:
+        model = User
+        fields = ["user", "username", "file", "uploaded_at", "type"]

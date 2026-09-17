@@ -1,15 +1,18 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from auth_app.models import User
+
+from .permissions import IsOwnerOrReadOnly
 from .serializers import (
     RegistrationSerializer,
     LoginSerializer,
     ProfileSerializer,
     ProfileListSerializer,
+    CustomerProfileListSerializer,
 )
-from .permissions import IsOwnerOrReadOnly
-from auth_app.models import User
 
 
 class RegistrationView(APIView):
@@ -60,7 +63,7 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 class CustomerProfileListView(generics.ListAPIView):
     """Lists all customer profiles."""
     queryset = User.objects.filter(type="customer")
-    serializer_class = ProfileListSerializer
+    serializer_class = CustomerProfileListSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 

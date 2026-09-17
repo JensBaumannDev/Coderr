@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from auth_app.models import User
+
 from ..models import Review
 
 
@@ -38,7 +40,7 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, attrs):
-        """Checks that the customer has not reviewed the business user before."""
+        """Checks that the customer has not reviewed this business user."""
         reviewer = self.context["request"].user
         review_exists = Review.objects.filter(
             business_user=attrs["business_user"],

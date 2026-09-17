@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from offers_app.models import Offer, OfferDetail
 
 
@@ -27,7 +28,8 @@ class OfferSerializer(serializers.ModelSerializer):
     def get_details(self, obj):
         """Returns links for all offer packages."""
         return [
-            {"id": d.id, "url": f"/offerdetails/{d.id}/"} for d in obj.details.all()
+            {"id": detail.id, "url": f"/offerdetails/{detail.id}/"}
+            for detail in obj.details.all()
         ]
 
     def get_min_price(self, obj):
@@ -72,10 +74,29 @@ class OfferCreateSerializer(serializers.ModelSerializer):
         fields = ["id", "title", "image", "description", "details"]
 
     def validate_details(self, value):
-        """Checks that a new offer has three packages."""
-        if not self.partial and len(value) != 3:
-            raise serializers.ValidationError("Ein Angebot benötigt genau 3 Details.")
+        """Checks offer package types and delivery times."""
+        self._validate_delivery_times(value)
+        if not self.partial:
+            self._validate_package_types(value)
         return value
+
+    def _validate_delivery_times(self, details):
+        """Checks that supplied delivery times are greater than zero."""
+        for detail in details:
+            delivery_time = detail.get("delivery_time_in_days")
+            if delivery_time is not None and delivery_time <= 0:
+                raise serializers.ValidationError(
+                    "Delivery time must be greater than zero."
+                )
+
+    def _validate_package_types(self, details):
+        """Checks that a new offer contains the required package types."""
+        package_types = {detail["offer_type"] for detail in details}
+        required_types = {"basic", "standard", "premium"}
+        if len(details) != 3 or package_types != required_types:
+            raise serializers.ValidationError(
+                "An offer needs basic, standard, and premium packages."
+            )
 
     def create(self, validated_data):
         """Creates an offer and all submitted packages."""

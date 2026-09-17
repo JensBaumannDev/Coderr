@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+
 from offers_app.models import Offer, OfferDetail
 
 
@@ -8,8 +9,12 @@ class OfferTestMixin:
             username=username, password="testpass123", type=user_type
         )
 
-    def create_offer(self, user, title="testtitle", description="testdescription"):
-        return Offer.objects.create(user=user, title=title, description=description)
+    def create_offer(
+        self, user, title="testtitle", description="testdescription"
+    ):
+        return Offer.objects.create(
+            user=user, title=title, description=description
+        )
 
     def create_detail(
         self, offer, title="testtitle", revisions=2, delivery_time=5,
@@ -27,7 +32,9 @@ class OfferTestMixin:
         self.create_detail(offer, price=price, delivery_time=delivery_time)
         return offer
 
-    def create_package_offer(self, user, title="testtitle", description="desc"):
+    def create_package_offer(
+        self, user, title="testtitle", description="desc"
+    ):
         offer = self.create_offer(user, title, description)
         for package in self._package_data():
             self.create_detail(offer, **package)
