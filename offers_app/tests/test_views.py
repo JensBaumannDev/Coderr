@@ -67,6 +67,11 @@ class OfferListViewTest(OfferTestMixin, APITestCase):
         response = self.client.get("/api/offers/?max_delivery_time=5")
         self.assert_offer_results(response, fast_offer)
 
+    def test_offer_list_invalid_delivery_time_filter(self):
+        """Returns a bad request for an invalid delivery time filter."""
+        response = self.client.get("/api/offers/?max_delivery_time=test")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_offer_list_search(self):
         user = self.create_user()
         matching_offer = self.create_listing_offer(user, "Logo Design")
@@ -139,6 +144,32 @@ class OfferDetailViewTest(OfferTestMixin, APITestCase):
             f"/api/offers/{offer.id}/", self._patch_data(), format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_offer_patch_without_type_is_invalid(self):
+        """Returns a bad request when a package type is missing."""
+        owner = self.create_user("invalidpatchowner")
+        offer = self.create_package_offer(owner)
+        self.client.force_authenticate(user=owner)
+        response = self.client.patch(
+            f"/api/offers/{offer.id}/",
+            {"details": [{"price": 150}]},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response["Content-Type"], "application/json")
+
+    def test_offer_patch_with_unknown_type_is_invalid(self):
+        """Returns a bad request for a missing package."""
+        owner = self.create_user("unknownpatchowner")
+        offer = self.create_package_offer(owner)
+        self.client.force_authenticate(user=owner)
+        offer.details.filter(offer_type="premium").delete()
+        response = self.client.patch(
+            f"/api/offers/{offer.id}/",
+            {"details": [{"offer_type": "premium", "price": 150}]},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_offer_patch_forbidden_for_non_owner(self):
         offer = self.create_package_offer(self.create_user("patchowner2"))

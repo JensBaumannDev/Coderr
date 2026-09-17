@@ -132,7 +132,15 @@ class ProfileListViewTest(APITestCase):
         """Checks the documented customer profile response fields."""
         self.assertEqual(
             set(response.data[0]),
-            {"user", "username", "file", "uploaded_at", "type"},
+            {
+                "user",
+                "username",
+                "first_name",
+                "last_name",
+                "file",
+                "uploaded_at",
+                "type",
+            },
         )
 
     def test_business_profiles_list(self):
