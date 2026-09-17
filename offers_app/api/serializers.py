@@ -76,9 +76,24 @@ class OfferCreateSerializer(serializers.ModelSerializer):
     def validate_details(self, value):
         """Checks offer package types and delivery times."""
         self._validate_delivery_times(value)
-        if not self.partial:
+        if self.partial:
+            self._validate_partial_details(value)
+        else:
             self._validate_package_types(value)
         return value
+
+    def _validate_partial_details(self, details):
+        """Checks that updated packages exist and contain their type."""
+        for detail in details:
+            offer_type = detail.get("offer_type")
+            if offer_type is None:
+                raise serializers.ValidationError("Offer type is required.")
+            if not self.instance.details.filter(
+                offer_type=offer_type
+            ).exists():
+                raise serializers.ValidationError(
+                    "The selected offer package does not exist."
+                )
 
     def _validate_delivery_times(self, details):
         """Checks that supplied delivery times are greater than zero."""
