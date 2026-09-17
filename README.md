@@ -191,6 +191,7 @@ Authorization: Token <your-token>
 ## Notes for Local Development
 
 - The database (`db.sqlite3`) is not tracked in version control. Running the migrations above will create a fresh one.
+- A fresh database contains no demo users. Register your own customer and business accounts, or create the demo accounts defined in the frontend configuration before using its guest login buttons.
 - `CORS_ALLOWED_ORIGINS` in `core/settings.py` is currently set to `http://127.0.0.1:5500` and `http://localhost:5500`, which match the common ports used by VS Code's Live Server extension when serving the frontend locally. Adjust it if your frontend runs elsewhere.
 - This backend is meant to be used together with the [Coderr frontend](https://github.com/Developer-Akademie-Backendkurs/project.Coderr), which lives in its own repository and is not part of this one.
 - Django admin is available at `/admin/` once a superuser has been created.
