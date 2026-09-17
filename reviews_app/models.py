@@ -3,6 +3,7 @@ from auth_app.models import User
 
 
 class Review(models.Model):
+    """Represents a customer review for a business user."""
     RATING_CHOICES = [
         (1, "1"),
         (2, "2"),
@@ -36,4 +37,5 @@ class Review(models.Model):
         ]
 
     def __str__(self):
+        """Returns a short review label."""
         return f"Review {self.rating} by {self.reviewer.username}"

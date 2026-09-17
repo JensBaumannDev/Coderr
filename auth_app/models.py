@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
+    """Represents a user with a customer or business role."""
     TYPE_CHOICES = [
         ("customer", "Customer"),
         ("business", "Business"),

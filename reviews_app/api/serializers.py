@@ -4,6 +4,7 @@ from ..models import Review
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """Serializes a review."""
     class Meta:
         model = Review
         fields = [
@@ -18,6 +19,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class ReviewCreateSerializer(serializers.ModelSerializer):
+    """Validates and creates a new review."""
     reviewer = serializers.PrimaryKeyRelatedField(read_only=True)
     business_user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.filter(type="business")
@@ -36,6 +38,7 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, attrs):
+        """Checks that the customer has not reviewed the business user before."""
         reviewer = self.context["request"].user
         review_exists = Review.objects.filter(
             business_user=attrs["business_user"],
@@ -48,6 +51,7 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        """Creates a review for the request user."""
         return Review.objects.create(
             reviewer=self.context["request"].user,
             **validated_data,
@@ -55,11 +59,13 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
 
 
 class ReviewUpdateSerializer(serializers.ModelSerializer):
+    """Updates the editable fields of a review."""
     class Meta:
         model = Review
         fields = ["rating", "description"]
 
     def validate(self, attrs):
+        """Checks that only rating and description are changed."""
         invalid_fields = set(self.initial_data) - {"rating", "description"}
         if invalid_fields:
             raise serializers.ValidationError(
@@ -68,4 +74,5 @@ class ReviewUpdateSerializer(serializers.ModelSerializer):
         return attrs
 
     def to_representation(self, instance):
+        """Returns the complete updated review."""
         return ReviewSerializer(instance).data
